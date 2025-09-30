@@ -1,0 +1,14 @@
+{
+  "name": "HEC-RAS Tools Dev",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "hecras-tools",
+  "workspaceFolder": "/app",
+  "settings": {
+    "python.defaultInterpreterPath": "/usr/local/bin/python"
+  },
+  "extensions": [
+    "ms-python.python",
+    "ms-python.vscode-pylance"
+  ],
+  "postCreateCommand": "pip install -e ."
+}
