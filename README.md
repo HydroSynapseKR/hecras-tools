@@ -26,9 +26,9 @@ Open this repo in VS Code, and it will auto-load inside Docker with dependencies
 
 ## 🛠️ Example
 ```python
-from hecras_tools.geometry_operations import GeometryOperations
+from hecras_tools.geometry_operations import GeometryHdf
 
-ops = GeometryOperations("example.hdf")
+ops = GeometryHdf("example.hdf")
 bc_lines = ops.get_bc_lines()
 print(bc_lines.head())
 ```
