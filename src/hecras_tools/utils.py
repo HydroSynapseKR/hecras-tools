@@ -1,16 +1,49 @@
 from ast import literal_eval
 
+CROSS_SECTION_RENAME_MAP = {
+    "River": "river",
+    "Reach": "reach",
+    "RS": "station",
+    "Description": "description",
+    "Len Left": "reach_len_left",
+    "Len Channel": "reach_len_chan",
+    "Len Right": "reach_len_right",
+    "Left Bank": "bank_sta_left",
+    "Right Bank": "bank_sta_right",
+    "Friction Mode": "n_mode",
+    "Contr": "contr_coeff",
+    "Expan": "expan_coeff",
+    "HP Count": "hp_count",
+    "HP Start Elev": "hp_start_el",
+    "HP Vert Incr": "hp_ver_incr",
+    "HP LOB Slices": "hp_lob_slices",
+    "HP Chan Slices": "hp_chan_slices",
+    "HP ROB Slices": "hp_rob_slices",
+    "Default Centerline": "default_centerline",
+    "Skew": "skew",
+    "PC Invert": "pc_invert",
+    "PC Width": "pc_width",
+    "PC Mann": "pc_mann",
+    "Deck Preissman Slot": "deck_preissman_slot",
+    "Contr (USF)": "contr_coeff_usf",
+    "Expan (USF)": "expan_coeff_usf"
+}
+
 
 def safe_literal_eval(val):
-    """Safely evaluate strings that might represent Python literals."""
+    """Safely evaluate strings that might represent Python literals.
+    This is typically used to normalize river station data so lookup can be performed safely.
+    values are first rounded to 5 places to resolve read errors
+    sometimes values like 13 are read as 12.9999999 or 13.0000001
+    """
     try:
         val_c = literal_eval(val)
-        if isinstance(val_c, float) and val_c.is_integer():
+        if isinstance(val_c, float) and round(val_c, 5).is_integer():
             return int(val_c)
         else:
             return val_c
     except (ValueError, SyntaxError):
-        if isinstance(val, float) and val.is_integer():
+        if isinstance(val, float) and round(val, 5).is_integer():
             return int(val)
         else:
             return val
