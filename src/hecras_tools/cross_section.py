@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, fields
 from typing import Iterable
 
 import h5py
 import numpy as np
 import pandas as pd
+from shapely import wkb
 from shapely.geometry import LineString, MultiLineString
 
 from hecras_tools.utils import safe_literal_eval, CROSS_SECTION_RENAME_MAP
@@ -43,63 +44,41 @@ class CrossSectionRecord:
     deck_preissman_slot: int | None = None
     contr_coeff_usf: float | None = None
     expan_coeff_usf: float | None = None
-    geometry_points: np.ndarray = np.ndarray((0, 2))
-    geometry_parts: np.ndarray = np.ndarray((0, 2))
+    geometry_points: np.ndarray = field(default_factory=lambda: np.empty((0, 2)))
+    geometry_parts: np.ndarray = field(default_factory=lambda: np.empty((0, 2)))
     geometry: LineString | MultiLineString | None = None
     manning_n_start: int = 0
     manning_n_count: int = 0
-    manning_n: pd.DataFrame = pd.DataFrame()
+    manning_n: pd.DataFrame = field(default_factory=pd.DataFrame)
     station_elevation_start: int = 0
     station_elevation_count: int = 0
-    station_elevation: pd.DataFrame = pd.DataFrame()
+    station_elevation: pd.DataFrame = field(default_factory=pd.DataFrame)
     ineffective_start: int = 0
     ineffective_count: int = 0
-    ineffective: pd.DataFrame = pd.DataFrame()
+    ineffective: pd.DataFrame = field(default_factory=pd.DataFrame)
     blocked_start: int = 0
     blocked_count: int = 0
-    blocked_obstruction: pd.DataFrame = pd.DataFrame()
+    blocked_obstruction: pd.DataFrame = field(default_factory=pd.DataFrame)
     lid_deck_high_start: int = 0
     lid_deck_count: int = 0
     lid_low_start: int = 0
     lid_low_count: int = 0
-    lid_data: pd.DataFrame = pd.DataFrame()
+    lid_data: pd.DataFrame = field(default_factory=pd.DataFrame)
 
     def copy(self) -> "CrossSectionRecord":
         """Return a deep copy of the record for defensive access."""
-        return CrossSectionRecord(
-            river=self.river,
-            reach=self.reach,
-            station=self.station,
-            description=self.description,
-            reach_len_left=self.reach_len_left,
-            reach_len_chan=self.reach_len_chan,
-            reach_len_right=self.reach_len_right,
-            bank_sta_left=self.bank_sta_left,
-            bank_sta_right=self.bank_sta_right,
-            n_mode=self.n_mode,
-            contr_coeff=self.contr_coeff,
-            expan_coeff=self.expan_coeff,
-            hp_count=self.hp_count,
-            hp_start_el=self.hp_start_el,
-            hp_ver_incr=self.hp_ver_incr,
-            hp_lob_slices=self.hp_lob_slices,
-            hp_chan_slices=self.hp_chan_slices,
-            hp_rob_slices=self.hp_rob_slices,
-            default_centerline=self.default_centerline,
-            skew=self.skew,
-            pc_invert=self.pc_invert,
-            pc_width=self.pc_width,
-            pc_mann=self.pc_mann,
-            deck_preissman_slot=self.deck_preissman_slot,
-            contr_coeff_usf=self.contr_coeff_usf,
-            expan_coeff_usf=self.expan_coeff_usf,
-            geometry=LineString(self.geometry) if self.geometry is not None else None,
-            manning_n=self.manning_n.copy(),
-            station_elevation=self.station_elevation.copy(),
-            ineffective=self.ineffective.copy(),
-            blocked_obstruction=self.blocked_obstruction.copy(),
-            lid_data=self.lid_data.copy()
-        )
+        copied_fields: dict[str, object] = {}
+        for field_def in fields(self):
+            value = getattr(self, field_def.name)
+            if isinstance(value, pd.DataFrame):
+                copied_fields[field_def.name] = value.copy(deep=True)
+            elif isinstance(value, np.ndarray):
+                copied_fields[field_def.name] = value.copy()
+            elif isinstance(value, (LineString, MultiLineString)):
+                copied_fields[field_def.name] = wkb.loads(wkb.dumps(value))
+            else:
+                copied_fields[field_def.name] = value
+        return CrossSectionRecord(**copied_fields)
 
 
 class CrossSectionData:
