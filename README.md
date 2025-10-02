@@ -34,8 +34,16 @@ Utilities for working with HEC-RAS geometry HDF files.
 - `get_2d_boundary()` – Build polygons for 2D flow area boundaries.
 - `get_2d_breaklines()` – Extract 2D flow area breaklines as geometries.
 - `get_2d_refinement_regions()` – Load refinement region polygons.
-- `get_2d_flow_area_mesh()` – Construct GeoDataFrames for 2D mesh cells and faces.
-- `get_structures()` – Retrieve hydraulic structure property tables.
+- `get_2d_mesh_cell_faces()` – Construct GeoDataFrames for 2D mesh cells faces.
+- `get_2d_mesh()` – Construct GeoDataFrames for 2D mesh cells polygons.
+- `get_2d_points()` – Construct GeoDataFrames for 2D mesh cell centers.
+- `get_flow_paths()` – Retrieve GeoDataFrames with left and right overbank flow lines for 1D rivers.
+- `get_bank_lines()` – Retrieve GeoDataFrames with left and right bank lines for 1D rivers.
+- `get_edge_lines()` – Retrieve GeoDataFrames with 1D edge boundary lines.
+- `get_rivers()` – Retrieve GeoDataFrames with 1D rivers with river attributes.
+- `get_cross_sections()` – Retrive GeoDataFrames with 1D cross section with attributes.
+- `get_structures()` – Construct GeoDataFrame for 1D and 2D structures with structure property tables.
+- `get_sa2d_connections()` – Construct GeoDataFrame for 2D structures connection with structure property tables.
 
 ### `CrossSectionData`
 Helper for exploring 1D cross-section information stored in geometry HDF files.
