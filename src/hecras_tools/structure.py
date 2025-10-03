@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, fields
-from typing import Iterable
+from typing import Iterable, Any
 
 import h5py
 import numpy as np
@@ -17,6 +17,15 @@ from hecras_tools.utils import safe_literal_eval, STRUCTURE_RENAME_MAP, TABLE_IN
 
 
 EMPTY_PROFILE = pd.DataFrame(columns=["Station", "Elevation"])
+EMPTY_MANNING = pd.DataFrame(columns=["Station", "Value"])
+
+
+def _empty_profile_array() -> np.ndarray:
+    return np.zeros((0, 2))
+
+
+def _empty_manning_array() -> np.ndarray:
+    return np.zeros((0, 2))
 
 
 def _decode_dataframe(df: pd.DataFrame) -> pd.DataFrame:
@@ -29,33 +38,122 @@ def _decode_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 class StructureRecord:
     """Container object for an individual HEC-RAS structure."""
 
-    structure_key: int
+    structure_key: int | str
+    structure_type: str
     river: str
     reach: str
     station: float | int | str
-    structure_type: str
+    structure_mode: str | None = None
     description: str | None = None
+    connection: str | None = None
+    last_edited: str | None = None
+    upstream_distance: float | int | None = None
+    weir_width: float | int | None = None
+    weir_max_submergence: float | int | None = None
+    weir_min_elevation: float | int | None = None
+    weir_coefficient: float | int | None = None
+    weir_shape: str | None = None
+    weir_design_eg_head: float | int | None = None
+    weir_design_spillway_ht: float | int | None = None
+    weir_us_slope: float | int | None = None
+    weir_ds_slope: float | int | None = None
+    linear_routing_positive_coef: float | int | None = None
+    linear_routing_negative_coef: float | int | None = None
+    linear_routing_elevation: float | int | None = None
+    lw_hw_position: float | int | None = None
+    lw_tw_position: float | int | None = None
+    lw_hw_distance: float | int | None = None
+    lw_tw_distance: float | int | None = None
+    lw_span_multiple: float | int | None = None
+    use_2d_for_overflow: int | None = None
+    use_velocity_into_2d: int | None = None
+    hagers_weir_coefficient: float | int | None = None
+    hagers_height: float | int | None = None
+    hagers_slope: float | int | None = None
+    hagers_angle: float | int | None = None
+    hagers_radius: float | int | None = None
+    use_ws_for_weir_reference: int | None = None
+    pilot_flow: float | int | None = None
+    culvert_groups: int | None = None
+    culverts_flap_gates: int | None = None
+    gate_groups: int | None = None
+    htab_ff_points: int | None = None
+    htab_rc_count: int | None = None
+    htab_rc_points: int | None = None
+    htab_hw_max: float | int | None = None
+    htab_tw_max: float | int | None = None
+    htab_max_flow: float | int | None = None
+    cell_spacing_near: float | int | None = None
+    cell_spacing_far: float | int | None = None
+    near_repeats: int | None = None
+    protection_radius: float | int | None = None
+    use_friction_in_momentum: int | None = None
+    use_weight_in_momentum: int | None = None
+    use_critical_us: int | None = None
+    use_eg_for_pressure_criteria: int | None = None
+    ice_option: int | None = None
+    weir_skew: float | int | None = None
+    pier_skew: float | int | None = None
+    bridge_us_left_bank: float | int | None = None
+    bridge_us_right_bank: float | int | None = None
+    bridge_ds_left_bank: float | int | None = None
+    bridge_ds_right_bank: float | int | None = None
+    xs_us_left_bank: float | int | None = None
+    xs_us_right_bank: float | int | None = None
+    xs_ds_left_bank: float | int | None = None
+    xs_ds_right_bank: float | int | None = None
+    us_ineff_left_station: float | int | None = None
+    us_ineff_left_elevation: float | int | None = None
+    us_ineff_right_station: float | int | None = None
+    us_ineff_right_elevation: float | int | None = None
+    ds_ineff_left_station: float | int | None = None
+    ds_ineff_left_elevation: float | int | None = None
+    ds_ineff_right_station: float | int | None = None
+    ds_ineff_right_elevation: float | int | None = None
+    use_override_hw_connectivity: int | None = None
+    use_override_tw_connectivity: int | None = None
+    use_override_htab_ib_curves: int | None = None
+    snn_id: int | None = None
+    default_centerline: int | None = None
     us_river: str | None = None
     us_reach: str | None = None
     us_station: float | int | str | None = None
     ds_river: str | None = None
     ds_reach: str | None = None
     ds_station: float | int | str | None = None
+    us_sa2d: str | None = None
+    ds_sa2d: str | None = None
+    us_type: str | None = None
+    ds_type: str | None = None
+    node_name: str | None = None
+    structure_id: int | None = None
     geometry: LineString | None = None
     us_xs_geometry: LineString | None = None
     ds_xs_geometry: LineString | None = None
     us_adjust: float | None = None
     ds_adjust: float | None = None
     centerline_adjust: float | None = None
-    centerline_profile: pd.DataFrame = field(default_factory=lambda: EMPTY_PROFILE.copy())
-    us_deck_high_profile: pd.DataFrame = field(default_factory=lambda: EMPTY_PROFILE.copy())
-    us_deck_low_profile: pd.DataFrame = field(default_factory=lambda: EMPTY_PROFILE.copy())
-    ds_deck_high_profile: pd.DataFrame = field(default_factory=lambda: EMPTY_PROFILE.copy())
-    ds_deck_low_profile: pd.DataFrame = field(default_factory=lambda: EMPTY_PROFILE.copy())
+    geometry_points: Any | None = None
+    geometry_parts: Any | None = None
+    profile_info: list[int] | None = None
+    centerline_profile: np.ndarray = field(default_factory=_empty_profile_array)
+    us_cross_section_profile: np.ndarray = field(default_factory=_empty_profile_array)
+    us_bridge_profile: np.ndarray = field(default_factory=_empty_profile_array)
+    us_deck_high_profile: np.ndarray = field(default_factory=_empty_profile_array)
+    us_deck_low_profile: np.ndarray = field(default_factory=_empty_profile_array)
+    ds_cross_section_profile: np.ndarray = field(default_factory=_empty_profile_array)
+    ds_bridge_profile: np.ndarray = field(default_factory=_empty_profile_array)
+    ds_deck_high_profile: np.ndarray = field(default_factory=_empty_profile_array)
+    ds_deck_low_profile: np.ndarray = field(default_factory=_empty_profile_array)
+    us_cross_section_mannings: np.ndarray = field(default_factory=_empty_manning_array)
+    us_bridge_mannings: np.ndarray = field(default_factory=_empty_manning_array)
+    ds_cross_section_mannings: np.ndarray = field(default_factory=_empty_manning_array)
+    ds_bridge_mannings: np.ndarray = field(default_factory=_empty_manning_array)
     culvert_data: pd.DataFrame = field(default_factory=pd.DataFrame)
     pier_data: pd.DataFrame = field(default_factory=pd.DataFrame)
     multiple_opening_data: pd.DataFrame = field(default_factory=pd.DataFrame)
     abutment_data: pd.DataFrame = field(default_factory=pd.DataFrame)
+    bridge_coefficient: np.ndarray = field(default_factory=lambda: np.zeros(0))
 
     def copy(self) -> "StructureRecord":
         """Return a deep copy of the record for defensive consumers."""
@@ -65,8 +163,10 @@ class StructureRecord:
             value = getattr(self, field_def.name)
             if isinstance(value, pd.DataFrame):
                 copied_fields[field_def.name] = value.copy(deep=True)
-            elif isinstance(value, LineString):
+            elif isinstance(value, (LineString, MultiLineString)):
                 copied_fields[field_def.name] = wkb.loads(wkb.dumps(value))
+            elif isinstance(value, np.ndarray):
+                copied_fields[field_def.name] = value.copy()
             else:
                 copied_fields[field_def.name] = value
         return StructureRecord(**copied_fields)  # type: ignore[arg-type]
@@ -96,9 +196,12 @@ class StructureData:
     def centerline_profile(self, structure_key: str) -> pd.DataFrame:
         """Return the centerline station-elevation profile for the structure."""
 
-        return self._get_record(structure_key).centerline_profile.copy(deep=True)
+        profile = self._get_record(structure_key).centerline_profile
+        if isinstance(profile, np.ndarray) and profile.size:
+            return pd.DataFrame(profile, columns=["Station", "Elevation"])
+        return EMPTY_PROFILE.copy()
 
-    def deck_profile(self, structure_key: str, side: str, position: str) -> pd.DataFrame:
+    def deck_profile(self, structure_key: str, side: str, position: str) -> np.ndarray:
         """Return deck profiles for the specified structure.
 
         Parameters
@@ -108,7 +211,7 @@ class StructureData:
         side:
             ``"us"`` for upstream profiles, ``"ds"`` for downstream profiles.
         position:
-            ``"weir"`` for high deck profiles and ``"lid"`` for low deck profiles.
+            ``"high"`` for weir deck profiles and ``"low"`` for low deck (lid) profiles.
         """
 
         record = self._get_record(structure_key)
@@ -118,8 +221,17 @@ class StructureData:
             raise ValueError("side must be 'us' or 'ds'")
         if position not in {"high", "low"}:
             raise ValueError("position must be 'high' or 'low'")
-        attr_name = f"{side}_br_{position}_profile"
-        return getattr(record, attr_name).copy(deep=True)
+        attr_map = {
+            ("us", "high"): "us_deck_high_profile",
+            ("us", "low"): "us_deck_low_profile",
+            ("ds", "high"): "ds_deck_high_profile",
+            ("ds", "low"): "ds_deck_low_profile",
+        }
+        attr_name = attr_map[(side, position)]
+        profile = getattr(record, attr_name)
+        if isinstance(profile, np.ndarray):
+            return profile.copy()
+        return np.asarray(profile)
 
     def culvert_dataframe(self, structure_key: str) -> pd.DataFrame:
         """Return culvert barrel/group data for the structure."""
@@ -131,15 +243,15 @@ class StructureData:
 
         return self._get_record(structure_key).pier_data.copy(deep=True)
 
-    def multiple_opening_dataframe(self, structure_id: int) -> pd.DataFrame:
+    def multiple_opening_dataframe(self, structure_key: str) -> pd.DataFrame:
         """Return multiple opening attribute data for the structure."""
 
-        return self._get_record(structure_id).multiple_opening_data.copy(deep=True)
+        return self._get_record(structure_key).multiple_opening_data.copy(deep=True)
 
-    def abutment_dataframe(self, structure_id: int) -> pd.DataFrame:
+    def abutment_dataframe(self, structure_key: str) -> pd.DataFrame:
         """Return abutment attribute data for the structure."""
 
-        return self._get_record(structure_id).abutment_data.copy(deep=True)
+        return self._get_record(structure_key).abutment_data.copy(deep=True)
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -237,7 +349,7 @@ class StructureData:
             def build_cl_geom(row):
                 geoms = [LineString(row['geometry_points'][i[0]:i[0] + i[1]]) for i in row['geometry_parts']]
                 if len(geoms) == 1:
-                    return parts[0]
+                    return geoms[0]
                 return MultiLineString(geoms)
 
             struct_attrs["geometry"] = struct_attrs.apply(build_cl_geom, axis=1)
@@ -247,7 +359,7 @@ class StructureData:
                 profile_info = structures_group["Table Info"]
                 # converting structured array to normal 2d array
                 profile_info = profile_info[:].view(np.int32).reshape(len(profile_info[:]), -1)
-                struct_attrs['profile_info'] = profile_info[:]
+                struct_attrs['profile_info'] = profile_info.tolist()
                 profile_data = structures_group['Profile Data'][:]
                 mann_data = structures_group['Mannings Data'][:]
                 struct_attrs['centerline_profile'] = [profile_data[start:start + count]
@@ -276,11 +388,34 @@ class StructureData:
                                               for start, count in profile_info[:, 22:24]]
                 struct_attrs['ds_br_mann'] = [mann_data[start:start + count]
                                               for start, count in profile_info[:, 24:26]]
+
+                struct_attrs.rename(
+                    columns={
+                        "us_br_weir_profile": "us_deck_high_profile",
+                        "us_br_lid_profile": "us_deck_low_profile",
+                        "ds_br_weir_profile": "ds_deck_high_profile",
+                        "ds_br_lid_profile": "ds_deck_low_profile",
+                        "us_br_profile": "us_bridge_profile",
+                        "ds_br_profile": "ds_bridge_profile",
+                        "us_xs_profile": "us_cross_section_profile",
+                        "ds_xs_profile": "ds_cross_section_profile",
+                        "us_xs_mann": "us_cross_section_mannings",
+                        "us_br_mann": "us_bridge_mannings",
+                        "ds_xs_mann": "ds_cross_section_mannings",
+                        "ds_br_mann": "ds_bridge_mannings",
+                    },
+                    inplace=True,
+                )
             except KeyError:
                 # Older versions store profiles in a single table
                 raise NotImplementedError('Only HEC-RAS version 6.1+ is supported')
 
-            struct_attrs["centerline_adjust"] = [arr[:, 0].min() for arr in struct_attrs['centerline_profile'].values]
+            def _centerline_min_station(array: Any) -> float | None:
+                if isinstance(array, np.ndarray) and array.size:
+                    return float(array[:, 0].min())
+                return None
+
+            struct_attrs["centerline_adjust"] = struct_attrs['centerline_profile'].map(_centerline_min_station)
 
             # Culvert groups and barrels
             try:
@@ -391,11 +526,15 @@ class StructureData:
                 pier_df = pd.DataFrame(structures_group["Pier Attributes"][:])
                 pier_df = _decode_dataframe(pier_df)
                 pier_data = structures_group["Pier Data"][:]
-                pier_us_info = pier_df[['US Profile (Index)', 'US Profile (Count)']]
-                pier_ds_info = pier_df[['DS Profile (Index)', 'DS Profile (Count)']]
+                pier_us_info = pier_df[["US Profile (Index)", "US Profile (Count)"]]
+                pier_ds_info = pier_df[["DS Profile (Index)", "DS Profile (Count)"]]
 
-                pier_df["pier_us_shape"] = [pier_data[start:start + count] for start, count in pier_us_info]
-                pier_df["pier_ds_shape"] = [pier_data[start:start + count] for start, count in pier_ds_info]
+                pier_df["pier_us_shape"] = [
+                    pier_data[start:start + count] for start, count in pier_us_info.to_numpy()
+                ]
+                pier_df["pier_ds_shape"] = [
+                    pier_data[start:start + count] for start, count in pier_ds_info.to_numpy()
+                ]
             except KeyError:
                 pier_df = pd.DataFrame(columns=["Structure ID"])
 
@@ -472,11 +611,15 @@ class StructureData:
                 abutment_df = pd.DataFrame(structures_group["Abutment Attributes"][:])
                 abutment_df = _decode_dataframe(abutment_df)
                 abutment_data = structures_group["Abutment Data"][:]
-                abut_us_info = abutment_df[['US Profile (Index)', 'US Profile (Count)']]
-                abut_ds_info = abutment_df[['DS Profile (Index)', 'DS Profile (Count)']]
+                abut_us_info = abutment_df[["US Profile (Index)", "US Profile (Count)"]]
+                abut_ds_info = abutment_df[["DS Profile (Index)", "DS Profile (Count)"]]
 
-                abutment_df["abutment_us_shape"] = [abutment_data[start:start + count] for start, count in abut_us_info]
-                abutment_df["abutment_ds_shape"] = [abutment_data[start:start + count] for start, count in abut_ds_info]
+                abutment_df["abutment_us_shape"] = [
+                    abutment_data[start:start + count] for start, count in abut_us_info.to_numpy()
+                ]
+                abutment_df["abutment_ds_shape"] = [
+                    abutment_data[start:start + count] for start, count in abut_ds_info.to_numpy()
+                ]
 
             except KeyError:
                 abutment_df = pd.DataFrame(columns=["Structure ID"])
@@ -492,10 +635,9 @@ class StructureData:
                 bridge_coeff = structures_group['Bridge Coefficient Attributes'][:]
                 coeff_dict = {row['Structure ID']: row for row in bridge_coeff}
                 struct_attrs['bridge_coefficient'] = struct_attrs['structure_id'].map(
-                    lambda sid: coeff_dict.get(sid, np.zeros(1, dtype=bridge_coeff.dtype))
+                    lambda sid: coeff_dict.get(sid, np.zeros(0, dtype=bridge_coeff.dtype))
                 )
             except KeyError:
-                struct_attrs['bridge_coefficient'] = struct_attrs['structure_id'].map(
-                    lambda sid: coeff_dict.get(sid, np.zeros(1, dtype=bridge_coeff.dtype))
-                )
+                empty = np.zeros(0)
+                struct_attrs['bridge_coefficient'] = struct_attrs['structure_id'].map(lambda sid: empty)
         return struct_attrs
