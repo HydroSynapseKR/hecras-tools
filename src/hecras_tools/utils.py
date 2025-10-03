@@ -29,6 +29,44 @@ CROSS_SECTION_RENAME_MAP = {
     "Expan (USF)": "expan_coeff_usf"
 }
 
+STRUCTURE_RENAME_MAP = {
+    "Groupname": "structure_key",
+    "Type": "structure_type",
+    "River": "river",
+    "Reach": "reach",
+    "RS": "station",
+    "Connection": "connection",
+    "US Type": "us_type",
+    "US River": "us_river",
+    "US Reach": "us_reach",
+    "US RS": "us_station",
+    "US SA/2D": "us_sa2d",
+    "DS Type": "ds_type",
+    "DS River": "ds_river",
+    "DS Reach": "ds_reach",
+    "DS RS": "ds_station",
+    "DS SA/2D": "ds_sa2d",
+    "Node Name": "node_name",
+    "Description": "description",
+    "Upstream Distance": "us_xs_distance",
+    "Weir Width": "weir_width",
+    "Weir Max Submergence": "weir_max_submergence",
+    "Weir Min Elevation": "weir_min_elevation",
+}
+
+TABLE_INFO_RENAME_MAP = {
+    "Centerline Profile (Index)": "centerline_profile_index",
+    "Centerline Profile (Count)": "centerline_profile_count",
+    "US BR Weir Profile (Index)": "us_deck_high_index",
+    "US BR Weir Profile (Count)": "us_deck_high_count",
+    "US BR Lid Profile (Index)": "us_deck_low_index",
+    "US BR Lid Profile (Count)": "us_deck_low_count",
+    "DS BR Weir Profile (Index)": "ds_deck_high_index",
+    "DS BR Weir Profile (Count)": "ds_deck_high_count",
+    "DS BR Lid Profile (Index)": "ds_deck_low_index",
+    "DS BR Lid Profile (Count)": "ds_deck_low_count",
+}
+
 
 def safe_literal_eval(val):
     """Safely evaluate strings that might represent Python literals.

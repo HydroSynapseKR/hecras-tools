@@ -18,6 +18,7 @@ from hecras_tools.utils import safe_literal_eval, CROSS_SECTION_RENAME_MAP
 class CrossSectionRecord:
     """Container for the attributes associated with a single cross-section record."""
 
+    ID_key: str
     river: str
     reach: str
     station: float | int
@@ -108,7 +109,7 @@ class CrossSectionData:
         """Return the Manning's n values for the requested station."""
         key = 'River: ' + river + ' Reach: ' + reach + ' RS: ' + str(safe_literal_eval(rs))
 
-        return self._get_record(key).mannings_n.copy()
+        return self._get_record(key).manning_n.copy()
 
     def station_elevation_df(self, river: str, reach: str, rs: float | int) -> pd.DataFrame:
         """Return the station-elevation profile for the requested station."""
@@ -169,7 +170,7 @@ class CrossSectionData:
             # ------------------------------------------------------------------
             geometry_info = hdf["Geometry"]["Cross Sections"]["Polyline Info"][:]
             points = hdf["Geometry"]["Cross Sections"]["Polyline Points"][:]
-            parts = hdf["Geometry"]["Cross Sections"]["Polyline Points"][:]
+            parts = hdf["Geometry"]["Cross Sections"]["Polyline Parts"][:]
             xs_attrib['geometry_points'] = xs_attrib.index.map(
                 lambda i: points[geometry_info[i, 0]: geometry_info[i, 0] + geometry_info[i, 1]]
             )
