@@ -164,6 +164,7 @@ class CrossSectionData:
             xs_attrib["RS"] = xs_attrib["RS"].apply(safe_literal_eval)
             xs_attrib["ID_key"] = ('River: ' + xs_attrib['River'] + ' Reach: ' + xs_attrib['Reach'] + ' RS: ' +
                                    xs_attrib['RS'].astype(str))
+            xs_attrib.replace({np.nan: None}, inplace=True)
 
             # ------------------------------------------------------------------
             # Geometry points
